@@ -1,0 +1,16 @@
+[package]
+edition = "2021"
+name = "halo2_sample"
+version = "0.1.0"
+
+[[bin]]
+name = "factor"
+path = "src/factor/main.rs"
+
+[[bin]]
+name = "fibo"
+path = "src/fibo/main.rs"
+
+[dependencies]
+halo2_proofs = {git = "https://github.com/privacy-scaling-explorations/halo2", tag = "v2023_04_20"}
+halo2curves = {git = "https://github.com/privacy-scaling-explorations/halo2curves", tag = "v0.4.0"}

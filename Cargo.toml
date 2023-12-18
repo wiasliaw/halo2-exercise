@@ -8,8 +8,8 @@ name = "factor"
 path = "src/factor/main.rs"
 
 [[bin]]
-name = "fibo"
-path = "src/fibo/main.rs"
+name = "fibonacci"
+path = "src/fibonacci/main.rs"
 
 [dependencies]
 halo2_proofs = {git = "https://github.com/privacy-scaling-explorations/halo2", tag = "v2023_04_20"}

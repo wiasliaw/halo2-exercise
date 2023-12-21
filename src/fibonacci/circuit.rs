@@ -1,19 +1,17 @@
 use halo2_proofs::{
     arithmetic::Field,
-    circuit::{SimpleFloorPlanner, Layouter, Value},
+    circuit::{SimpleFloorPlanner, Layouter},
     plonk::{Circuit, ConstraintSystem, Error},
 };
 use crate::chip::FiboChip;
 use crate::config::FiboConfig;
 
 #[derive(Default)]
-pub struct FiboCircuit<F: Field> {
-    pub a: Value<F>,
-    pub b: Value<F>,
+pub struct FiboCircuit {
     pub n: usize,
 }
 
-impl<F: Field> Circuit<F> for FiboCircuit<F> {
+impl<F: Field> Circuit<F> for FiboCircuit {
     type Config = FiboConfig;
     type FloorPlanner = SimpleFloorPlanner;
 
@@ -39,19 +37,15 @@ impl<F: Field> Circuit<F> for FiboCircuit<F> {
         let chip = FiboChip::construct(config);
 
         // first row
-        let (_, mut b, mut c) = chip.load_first_row(
-            layouter.namespace(|| "first"),
-            self.a,
-            self.b,
-        )?;
+        let (_, mut b, mut c) = chip.load_first_row(layouter.namespace(|| "first"))?;
 
         // next row
-        for _i in 1..self.n {
-            (_, b, c) = chip.load_row(layouter.namespace(|| "next"), b, c)?;
+        for i in 1..=self.n - 2 {
+            (_, b, c) = chip.load_row(layouter.namespace(|| "next"), b, c, i)?;
         }
 
         // expose
-        chip.expose_public(layouter.namespace(|| "expose"), &c, 0)?;
+        chip.expose_public(layouter.namespace(|| "expose"), &c)?;
 
         Ok(())
     }

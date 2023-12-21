@@ -48,8 +48,6 @@ impl<F: Field> FiboChip<F> {
     pub fn load_first_row(
         &self,
         mut layouter: impl Layouter<F>,
-        a: Value<F>,
-        b: Value<F>,
     ) -> Result<(AssignedCell<F, F>, AssignedCell<F, F>, AssignedCell<F, F>), Error> {
         layouter.assign_region(
             || "first row",
@@ -62,7 +60,7 @@ impl<F: Field> FiboChip<F> {
                     || "f(0) = 1",
                     self.config.a,
                     0,
-                    || a,
+                    || Value::known(F::ONE),
                 )?;
 
                 // load f(1)
@@ -70,7 +68,7 @@ impl<F: Field> FiboChip<F> {
                     || "f(1) = 1",
                     self.config.b,
                     0,
-                    || b,
+                    || Value::known(F::ONE),
                 )?;
 
                 // load f(2)
@@ -92,32 +90,33 @@ impl<F: Field> FiboChip<F> {
         mut layouter: impl Layouter<F>,
         prev_b: AssignedCell<F, F>,
         prev_c: AssignedCell<F, F>,
+        i: usize,
     ) -> Result<(AssignedCell<F, F>, AssignedCell<F, F>, AssignedCell<F, F>), Error> {
         layouter.assign_region(
             || "next row",
             |mut region| {
                 // enable selector for addition
-                self.config.s.enable(&mut region, 0)?;
+                self.config.s.enable(&mut region, i)?;
 
                 // load prev row
                 let curr_a = prev_b.copy_advice(
                     || "prev_b to curr_a",
                     &mut region,
                     self.config.a,
-                    0,
+                    i,
                 )?;
 
                 let curr_b = prev_c.copy_advice(
                     || "prev_c to curr_b",
                     &mut region,
                     self.config.b,
-                    0,
+                    i,
                 )?;
 
                 let curr_c = region.assign_advice(
                     || "f(2)",
                     self.config.c,
-                    0,
+                    i,
                     || curr_a.value().copied() + curr_b.value()
                 )?;
 
@@ -131,8 +130,7 @@ impl<F: Field> FiboChip<F> {
         &self,
         mut layouter: impl Layouter<F>,
         cell: &AssignedCell<F, F>,
-        row: usize,
     ) -> Result<(), Error> {
-        layouter.constrain_instance(cell.cell(), self.config.i, row)
+        layouter.constrain_instance(cell.cell(), self.config.i, 0)
     }
 }

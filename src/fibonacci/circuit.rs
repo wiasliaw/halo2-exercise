@@ -3,7 +3,7 @@ use halo2_proofs::{
     circuit::{SimpleFloorPlanner, Layouter},
     plonk::{Circuit, ConstraintSystem, Error},
 };
-use crate::chip::FiboChip;
+use crate::chip::{FiboChip, FiboInstructions};
 use crate::config::FiboConfig;
 
 #[derive(Default)]
@@ -37,11 +37,11 @@ impl<F: Field> Circuit<F> for FiboCircuit {
         let chip = FiboChip::construct(config);
 
         // first row
-        let (_, mut b, mut c) = chip.load_first_row(layouter.namespace(|| "first"))?;
+        let (_, mut b, mut c) = chip.write_first_row(layouter.namespace(|| "first"))?;
 
         // next row
         for i in 1..=self.n - 2 {
-            (_, b, c) = chip.load_row(layouter.namespace(|| "next"), b, c, i)?;
+            (_, b, c) = chip.write_next_row(layouter.namespace(|| "next"), b, c, i)?;
         }
 
         // expose

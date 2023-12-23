@@ -1,14 +1,56 @@
 use halo2_proofs::{
     arithmetic::Field,
-    circuit::{Layouter, AssignedCell, Value},
+    circuit::{Chip, Layouter, AssignedCell, Value},
     plonk::{ConstraintSystem, Error, Column, Advice, Instance, Selector},
     poly::Rotation,
 };
 use crate::config::FiboConfig;
 
+/**
+ * instruction interface
+ */
+
+pub trait FiboInstructions<F: Field>: Chip<F> {
+    fn write_first_row(
+        &self,
+        layouter: impl Layouter<F>,
+    ) -> Result<(AssignedCell<F, F>, AssignedCell<F, F>, AssignedCell<F, F>), Error>;
+
+    fn write_next_row(
+        &self,
+        layouter: impl Layouter<F>,
+        prev_b: AssignedCell<F, F>,
+        prev_c: AssignedCell<F, F>,
+        i: usize,
+    ) -> Result<(AssignedCell<F, F>, AssignedCell<F, F>, AssignedCell<F, F>), Error>;
+
+    fn expose_public(
+        &self,
+        layouter: impl Layouter<F>,
+        cell: &AssignedCell<F, F>,
+    ) -> Result<(), Error>;
+}
+
+/**
+ * Chip and implementation
+ */
+
 pub struct FiboChip<F: Field> {
     config: FiboConfig,
     _marker: std::marker::PhantomData<F>,
+}
+
+impl<F: Field> Chip<F> for FiboChip<F> {
+    type Config = FiboConfig;
+    type Loaded = ();
+
+    fn config(&self) -> &Self::Config {
+        &self.config
+    }
+
+    fn loaded(&self) -> &Self::Loaded {
+        &()
+    }
 }
 
 impl<F: Field> FiboChip<F> {
@@ -44,8 +86,10 @@ impl<F: Field> FiboChip<F> {
             a, b, c, i, s
         }
     }
+}
 
-    pub fn load_first_row(
+impl<F: Field> FiboInstructions<F> for FiboChip<F> {
+    fn write_first_row(
         &self,
         mut layouter: impl Layouter<F>,
     ) -> Result<(AssignedCell<F, F>, AssignedCell<F, F>, AssignedCell<F, F>), Error> {
@@ -85,7 +129,7 @@ impl<F: Field> FiboChip<F> {
         )
     }
 
-    pub fn load_row(
+    fn write_next_row(
         &self,
         mut layouter: impl Layouter<F>,
         prev_b: AssignedCell<F, F>,
@@ -126,7 +170,7 @@ impl<F: Field> FiboChip<F> {
         )
     }
 
-    pub fn expose_public(
+    fn expose_public(
         &self,
         mut layouter: impl Layouter<F>,
         cell: &AssignedCell<F, F>,

@@ -11,6 +11,10 @@ path = "src/factor/main.rs"
 name = "fibonacci"
 path = "src/fibonacci/main.rs"
 
+[[bin]]
+name = "section1"
+path = "src/section1/main.rs"
+
 [dependencies]
 halo2_proofs = {git = "https://github.com/privacy-scaling-explorations/halo2", tag = "v2023_04_20"}
 halo2curves = {git = "https://github.com/privacy-scaling-explorations/halo2curves", tag = "v0.4.0"}

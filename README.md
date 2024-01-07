@@ -2,7 +2,9 @@
 
 ## example 1
 
-$a*b = c$
+$$
+a*b = c
+$$
 
 ```rust
 cargo run --bin factor
@@ -17,4 +19,16 @@ $$
 
 ```rust
 cargo run --bin fibonacci
+```
+
+## tutorial - Section 1
+
+[halo2 tutorial](https://erroldrummond.gitbook.io/halo2-tutorial/)
+
+$$
+l \cdot s_l + r \cdot s_r + (l \cdot r) \cdot s_m + o \cdot s_o + s_c + PI = 0
+$$
+
+```rust
+cargo run --bin section1
 ```
